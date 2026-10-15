@@ -1,0 +1,30 @@
+services:
+  bayora:
+    build: .
+    image: bayora:latest
+    ports:
+      - "127.0.0.1:8080:8080"        # localhost only; put a TLS reverse proxy in front for remote access
+    environment:
+      BAYORA_API_KEY: ${BAYORA_API_KEY:?Set BAYORA_API_KEY in your .env file}
+      BAYORA_LOG_LEVEL: ${BAYORA_LOG_LEVEL:-INFO}
+      BAYORA_RATE_LIMIT: ${BAYORA_RATE_LIMIT:-120}
+      # Optional: named targets to test (see examples/bayora.example.yaml)
+      # BAYORA_CONFIG: /config/bayora.yaml
+      # Optional: guarded OpenAI-compatible proxy
+      # BAYORA_UPSTREAM_URL: https://api.openai.com/v1
+      # BAYORA_UPSTREAM_KEY: ${UPSTREAM_API_KEY}
+      # BAYORA_PROTECTED_STRINGS: "my-internal-secret,another-secret"
+    volumes:
+      - bayora-data:/data
+      # - ./bayora.yaml:/config/bayora.yaml:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  bayora-data:
